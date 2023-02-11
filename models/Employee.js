@@ -2,28 +2,43 @@ const mongoose = require('mongoose');
 
 const EmployeeSchema = new mongoose.Schema({
   firstname: {
-    type: String
+    type: String,
+    required: [true, "Please enter first name"],
+    trim: true,
+    lowercase: true
   },
   lastname: {
-    type: String
+    type: String,
+    required: true
   },
   email: {
-    type: String
+    type: String,
+    required: true
   },
   gender: {
-    type: String
+    type: String,
+    required: true
   },
   city:{
-    type: String
+    type: String,
+    required: true
   },
   designation: {
-    type: String
+    type: String,
+    required: true
   },
   salary: {
-    type: Number
+    type: Number,
+    required: true,
+    validate(value) {
+      if (value < 0.0) {
+        throw new Error("Negative Salary is not allowed");
+      }
+    }
   },
   created: { 
-    type: Date
+    type: Date,
+    default: Date.now
   },
   updatedat: { 
     type: Date
@@ -31,17 +46,35 @@ const EmployeeSchema = new mongoose.Schema({
 });
 
 //Declare Virtual Fields
-
+EmployeeSchema.virtual("fullname")
+    .get(function() {
+      return `${this.firstname} ${this.lastname}`
+    })
 
 //Custom Schema Methods
 //1. Instance Method Declaration
+EmployeeSchema.methods.getFullName = function() {
+  return `${this.firstname} ${this.lastname}`
+}
 
+EmployeeSchema.methods.getFormattedSalary = function() {
+  return `$${this.salary}`
+}
 
 //2. Static method declararion
+EmployeeSchema.statics.getEmployeeById = function(eid) {
+  return this.find({_id: eid}).select("firstname lastname salary");
+}
 
 
 //Writing Query Helpers
+EmployeeSchema.query.sortByFirstName = function(flag) { // flag -1 OR 1
+  return this.sort({'firstname': flag});
+}
 
+EmployeeSchema.query.byFirstName = function(name) {
+  return this.where({'firstname': name});
+}
 
 
 EmployeeSchema.pre('save', (next) => {

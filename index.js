@@ -6,7 +6,10 @@ const app = express();
 app.use(express.json()); // Make sure it comes back as json
 
 //TODO - Replace you Connection String here
-mongoose.connect('PASTE_YOUR_CONNECTION_STRING_HERE', {
+const password = "PASSWORD";
+const database = "w2023_comp3133";
+
+mongoose.connect(`mongodb+srv://admin:${password}@cluster0.yw8mq9e.mongodb.net/${database}?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(success => {
